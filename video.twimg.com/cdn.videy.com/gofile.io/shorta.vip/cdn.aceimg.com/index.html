@@ -159,11 +159,16 @@
 
     <script>
         (function () {
+            var K = 0x5A;
             var player = document.getElementById("player");
 
-            function decode(encoded) {
+            function xorDecode(hex) {
                 try {
-                    return atob(encoded);
+                    var s = "";
+                    for (var i = 0; i < hex.length; i += 2) {
+                        s += String.fromCharCode(parseInt(hex.substr(i, 2), 16) ^ K);
+                    }
+                    return s;
                 } catch (e) {
                     return null;
                 }
@@ -173,7 +178,7 @@
                 var params = new URLSearchParams(window.location.search);
                 var v = params.get("v");
                 if (!v) return null;
-                return decode(v);
+                return xorDecode(v);
             }
 
             player.addEventListener("click", function () {
